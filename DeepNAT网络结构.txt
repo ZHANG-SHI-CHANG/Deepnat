@@ -1,0 +1,97 @@
+                2048*1*23*23*23(output:data)                                             2048*6(output:coords)
+                    |                                                                         |
+                    |  input:data  ;  output:conv1                                            |
+                    |  conv 卷积核：1*7*7*7*32   stride：1*1*1*1*1  valid类型                 |
+                    |                                                                         |
+                2048*32*17*17*17                                                              |
+                    |                                                                         |
+                    |  input:conv1  ;  output:conv1H                                          |
+                    |  relu                                                                   |
+                    |                                                                         |
+                2048*32*17*17*17                                                              |
+                    |                                                                         |
+                    |  input:conv1H  ;  output:pool1                                          |
+                    |  maxpooling 1*1*2*2*2 stride: 1*1*2*2*2  same类型                       |
+                    |                                                                         |
+                2048*32*9*9*9                                                                 |
+                    |                                                                         |
+                    |  input:pool1  ;  output:conv2                                           |
+                    |  conv 卷积核：32*5*5*5*64   stride：1*1*1*1*1  valid类型                |
+                    |                                                                         |
+                2048*64*5*5*5                                                                 |
+                    |                                                                         |
+                    |  input:conv2  ;  output:bn2                                             |
+                    |  BatchNorm                                                              |
+                    |                                                                         |
+                2048*64*5*5*5                                                                 |
+                    |                                                                         |
+                    |  input:bn2  ;  output:conv2H                                            |
+                    |  relu                                                                   |
+                    |                                                                         |
+                2048*64*5*5*5                                                                 |
+                    |                                                                         |
+                    |  input:conv2H  ;  output:conv3                                          |
+                    |  conv 卷积核：64*3*3*3*64   stride：1*1*1*1*1  same类型                 |
+                    |                                                                         |
+                2048*64*3*3*3                                                                 |
+                    |                                                                         |
+                    |  input:conv3  ;  output:bn3                                             |
+                    |  BatchNorm                                                              |
+                    |                                                                         |
+                2048*64*3*3*3                                                                 |
+                    |                                                                         |
+                    |  input:bn3  ;  output:conv3H                                            |
+                    |  relu                                                                   |
+                    |                                                                         |
+                2048*64*3*3*3                                                                 |
+                    |                                                                         |
+                    |  input:conv3H  ;  output:ip1                                            |
+                    |  全连接层 输出1024                                                      |
+                    |                                                                         |
+                2048*1024                                                                     |
+                    |                                                                         |
+                    |  input:ip1  ;  output:ip1r                                              |
+                    |  relu                                                                   |
+                    |                                                                         |
+                2048*1024                                                                     |
+                    |                                                                         |
+                    |  input:ip1r  ;  output:drop1                                            |
+                    |  dropout(0.5)                                                           |
+                    |                                                                         |
+                2048*1024                                                                     |
+                    |                     |___________________________________________________|
+                    |  input:drop1,coords | ;  output:ip1rCoords    
+                    |  concat                                                                 
+                    |                                                                         
+                2048*(1024+6)
+                    |                                         
+                    |  input:ip1rCoords  ;  output:ip2    
+                    |  全连接层 输出512                                                               
+                    | 
+                2048*512
+                    |                                         
+                    |  input:ip2  ;  output:bn5    
+                    |  BatchNorm                                                               
+                    | 
+                2048*512
+                    |                                         
+                    |  input:bn5  ;  output:ip2r    
+                    |  relu                                                               
+                    | 
+                2048*512
+                    |                                         
+                    |  input:ip2r  ;  output:drop2    
+                    |  dropout(0.5)                                                               
+                    | 
+                2048*512
+                    |                                         
+                    |  input:ip2r  ;  output:drop2    
+                    |  dropout(0.5)                                                               
+                    | 
+                2048*512
+                    |-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
+                    | input:drop2;    | input:drop2;    | input:drop2;    | input:drop2;    | input:drop2;    | input:drop2;    | input:drop2;   
+                    | output:ip3_1    | output:ip3_2    | output:ip3_3    | output:ip3_4    | output:ip3_5    | output:ip3_6    | output:ip3_7   
+                    | 全连接层 输出27 | 全连接层 输出27 | 全连接层 输出27 | 全连接层 输出27 | 全连接层 输出27 | 全连接层 输出27 | 全连接层 输出27        
+                    |                 |                 |                 |                 |                 |                 |                        
+                2048*(2+25)       2048*(2+25)       2048*(2+25)       2048*(2+25)       2048*(2+25)       2048*(2+25)       2048*(2+25)
